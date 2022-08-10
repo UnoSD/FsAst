@@ -2,6 +2,7 @@
 module FsAst.AstRcd
 
 open System
+open FSharp.Compiler.SyntaxTrivia
 open FSharp.Compiler.Text
 open FSharp.Compiler.Syntax
 open FSharp.Compiler.Xml
@@ -17,7 +18,7 @@ type ParsedImplFileInputRcd = {
     IsExe: bool }
 with
     member x.FromRcd =
-        ParsedImplFileInput(x.File, x.IsScript, x.QualName, x.Pragmas, x.HashDirectives, x.Modules, (x.IsLastCompiland, x.IsExe))
+        ParsedImplFileInput(x.File, x.IsScript, x.QualName, x.Pragmas, x.HashDirectives, x.Modules, (x.IsLastCompiland, x.IsExe), { ConditionalDirectives = []; CodeComments = [] })
 
 type ParsedImplFileInput with
     member x.ToRcd =

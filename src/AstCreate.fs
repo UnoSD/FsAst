@@ -2,6 +2,7 @@
 module FsAst.AstCreate
 open System
 open FSharp.Compiler.Syntax
+open FSharp.Compiler.SyntaxTrivia
 open FSharp.Compiler.Text
 open FSharp.Compiler.Text.Range
 open FSharp.Compiler.Text.Position
@@ -57,9 +58,16 @@ type QualifiedNameOfFile with
     static member Create name =
         QualifiedNameOfFile(Ident.Create name)
 
+let private memberFlagsTrivia =
+    { MemberRange = Some range0
+      OverrideRange = Some range0
+      AbstractRange = Some range0
+      StaticRange = Some range0
+      DefaultRange = Some range0 }
+
 type SynMemberFlags with
     static member InstanceMember : SynMemberFlags =
-        { IsInstance = true; MemberKind = SynMemberKind.Member; IsDispatchSlot = false; IsOverrideOrExplicitImpl = false; IsFinal = false }
+        { IsInstance = true; MemberKind = SynMemberKind.Member; IsDispatchSlot = false; IsOverrideOrExplicitImpl = false; IsFinal = false; Trivia = memberFlagsTrivia }
     static member StaticMember =
         { SynMemberFlags.InstanceMember with IsInstance = false }
 
@@ -419,6 +427,7 @@ type SynMemberDefn with
             IsDispatchSlot = false;
             IsFinal = false
             MemberKind = SynMemberKind.Member
+            Trivia = memberFlagsTrivia
         }
         let staticBinding = { binding with ValData = SynValData.SynValData(staticMemberFlags, valInfo, identifier) }
         SynMemberDefn.Member(staticBinding.FromRcd, range0)
@@ -435,6 +444,7 @@ type SynMemberDefn with
             IsDispatchSlot = false;
             IsFinal = false
             MemberKind = SynMemberKind.Member
+            Trivia = memberFlagsTrivia
         }
         let overrideBinding = { binding with ValData = SynValData.SynValData(overrideMemberFlags, valInfo, identifier) }
         SynMemberDefn.Member(overrideBinding.FromRcd, range0)
@@ -490,7 +500,7 @@ type SynModuleDecl with
     static member CreateAttributes(attributes) =
         SynModuleDecl.Attributes(attributes, range0)
     static member CreateNestedModule(info : SynComponentInfoRcd, members) =
-        SynModuleDecl.NestedModule(info.FromRcd, false, None, members, false, range0)
+        SynModuleDecl.NestedModule(info.FromRcd, false, members, false, range0, { EqualsRange = Some range0; ModuleKeyword = Some range0 })
     static member CreateTypes (types: SynTypeDefnRcd list) =
         SynModuleDecl.Types(types |> List.map (fun t -> t.FromRcd), range0)
 
